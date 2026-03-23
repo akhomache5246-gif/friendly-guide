@@ -1,1 +1,517 @@
-C:\Users\Ibrahim Akhomache\Desktop\chatbot-multiusos-completo.html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Chatbot Servicio al Cliente - MULTIUSOS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden;
+        }
+        .chatbot { 
+            width: 95%; max-width: 450px; 
+            height: 85vh; 
+            background: #fff; 
+            border-radius: 25px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899); 
+            color: white; 
+            padding: 25px 20px; 
+            text-align: center; 
+        }
+        .header h2 { margin-bottom: 5px; font-size: 1.4em; }
+        .header p { opacity: 0.9; font-size: 0.95em; }
+        .messages { 
+            flex: 1; 
+            padding: 25px 20px; 
+            overflow-y: auto; 
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            scroll-behavior: smooth;
+        }
+        .message { 
+            margin-bottom: 18px; 
+            display: flex; 
+            animation: slideIn 0.4s ease; 
+        }
+        .message.user { justify-content: flex-end; }
+        .message-content { 
+            max-width: 75%; 
+            padding: 15px 20px; 
+            border-radius: 22px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            line-height: 1.5;
+        }
+        .user .message-content { 
+            background: linear-gradient(135deg, #4f46e5, #7c3aed); 
+            color: white; 
+        }
+        .bot .message-content { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+        }
+        .typing { 
+            display: flex; gap: 6px; 
+            padding: 15px 20px; 
+            background: white; 
+            border-radius: 22px; 
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 18px;
+        }
+        .dot { 
+            width: 10px; height: 10px; 
+            border-radius: 50%; 
+            background: #64748b; 
+            animation: typing 1.4s infinite; 
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .input-area { 
+            padding: 25px 20px; 
+            background: white; 
+            border-top: 1px solid #e2e8f0; 
+            display: flex; 
+            gap: 12px; 
+        }
+        #messageInput { 
+            flex: 1; 
+            padding: 18px 25px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 30px; 
+            font-size: 16px; 
+            outline: none; 
+            transition: all 0.3s; 
+        }
+        #messageInput:focus { 
+            border-color: #4f46e5; 
+            box-shadow: 0 0 0 4px rgba(79,70,229,0.15); 
+        }
+        .send-btn { 
+            width: 55px; height: 55px; 
+            border: none; 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-size: 20px; 
+            transition: all 0.3s; 
+        }
+        .send-btn:hover:not(:disabled) { 
+            transform: scale(1.08) rotate(10deg); 
+            box-shadow: 0 8px 25px rgba(16,185,129,0.4); 
+        }
+        .send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .quick-buttons { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+        .quick-btn { 
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: all 0.3s; 
+            box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+        }
+        .quick-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(59,130,246,0.4); 
+        }
+        .config-btn { 
+            position: fixed; 
+            top: 25px; 
+            right: 25px; 
+            width: 60px; height: 60px; 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            font-size: 24px; 
+            cursor: pointer; 
+            box-shadow: 0 10px 30px rgba(245,158,11,0.4); 
+            z-index: 1000; 
+            transition: all 0.3s;
+        }
+        .config-btn:hover { transform: scale(1.1) rotate(180deg); }
+        .config-panel { 
+            position: fixed; 
+            top: 95px; 
+            right: 25px; 
+            width: 350px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+            z-index: 1000; 
+            display: none; 
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .config-panel h3 { 
+            color: #1f2937; 
+            margin-bottom: 20px; 
+            text-align: center; 
+        }
+        .config-group { 
+            margin-bottom: 20px; 
+        }
+        .config-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #374151; 
+        }
+        .config-group select, .config-group input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            transition: all 0.3s; 
+        }
+        .config-group select:focus, .config-group input:focus { 
+            outline: none; 
+            border-color: #4f46e5; 
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1); 
+        }
+        .save-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        .save-btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(16,185,129,0.4); 
+        }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes typing { 
+            0%, 60%, 100% { transform: translateY(0); } 
+            30% { transform: translateY(-8px); } 
+        }
+        @media (max-width: 480px) { 
+            .chatbot { width: 98%; height: 92vh; border-radius: 20px; }
+            .config-panel { right: 15px; width: calc(100% - 30px); top: 85px; }
+            .config-btn { top: 15px; right: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- BOTÓN CONFIGURACIÓN -->
+    <button class="config-btn" onclick="toggleConfig()">⚙️</button>
+    
+    <!-- PANEL CONFIGURACIÓN -->
+    <div class="config-panel" id="configPanel">
+        <h3>🔧 Configurar Chatbot</h3>
+        <div class="config-group">
+            <label>🏢 Tipo de Negocio:</label>
+            <select id="businessType" onchange="updateBusiness()">
+                <option value="restaurante">🍽️ Restaurante</option>
+                <option value="barberia">💈 Barbería/Peluquería</option>
+                <option value="hospital">🏥 Hospital/Clinica</option>
+                <option value="colegio">🏫 Colegio/Escuela</option>
+                <option value="empresa">🏢 Empresa/Oficina</option>
+                <option value="tienda">🛒 Tienda/Comercio</option>
+                <option value="gimnasio">💪 Gimnasio</option>
+                <option value="hotel">🏨 Hotel</option>
+            </select>
+        </div>
+        <div class="config-group">
+            <label>📛 Nombre del Negocio:</label>
+            <input type="text" id="businessName" value="Mi Negocio" placeholder="Ej: Restaurante La Buena Mesa">
+        </div>
+        <div class="config-group">
+            <label>📞 Teléfono/WhatsApp:</label>
+            <input type="text" id="phoneNumber" value="123-456-789" placeholder="Ej: 555-123-4567">
+        </div>
+        <div class="config-group">
+            <label>🌐 Sitio Web (opcional):</label>
+            <input type="url" id="website" placeholder="https://mi-negocio.com">
+        </div>
+        <button class="save-btn" onclick="saveConfig()">💾 Guardar Configuración</button>
+    </div>
+
+    <!-- CHATBOT PRINCIPAL -->
+    <div class="chatbot" id="chatbot">
+        <div class="header">
+            <h2 id="chatTitle">🤖 Asistente Virtual</h2>
+            <p id="chatSubtitle">¡Hola! Estoy aquí para ayudarte 😊</p>
+        </div>
+        <div class="messages" id="messages">
+            <div class="message bot">
+                <div class="message-content">
+                    <strong>¡Bienvenido!</strong><br>
+                    Soy tu asistente virtual 24/7. Te ayudo con todo lo que necesites.<br><br>
+                    <div class="quick-buttons">
+                        <button class="quick-btn" onclick="quickReply('servicios')">Servicios</button>
+                        <button class="quick-btn" onclick="quickReply('horarios')">Horarios</button>
+                        <button class="quick-btn" onclick="quickReply('contacto')">Contacto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="💬 Escribe tu mensaje..." onkeypress="handleEnter(event)">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Enviar">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // ===================== CONFIGURACIÓN GLOBAL =====================
+        let CONFIG = {
+            type: 'restaurante',
+            name: 'Mi Negocio',
+            phone: '123-456-789',
+            website: ''
+        };
+
+        // ===================== RESPUESTAS COMPLETAS =====================
+        const RESPUESTAS = {
+            restaurante: {
+                saludos: ['¡Hola! 🍽️ Bienvenido a nuestro restaurante', '¡Buen día! ¿Qué te apetece comer hoy? 😋'],
+                servicios: '🍽️ <strong>Menú del día:</strong><br>🥩 Carnes • 🍝 Pastas • 🥗 Ensaladas • 🍕 Pizzas<br>🦐 Mariscos • 🍜 Sushi • 🥘 Especialidades del chef',
+                horarios: '🕒 <strong>Horarios:</strong><br>Lun-Dom: 11:00 AM - 11:00 PM<br>🚚 Entregas hasta las 10:30 PM',
+                contacto: '📞 <strong>Contacto:</strong><br>☎️ <a href="tel:+51{phone}" style="color:#10b981;">{phone}</a><br>📱 <a href="https://wa.me/51{phone}" target="_blank" style="background:#25D366;color:white;padding:4px 8px;border-radius:20px;text-decoration:none;">WhatsApp</a><br>🌐 {website}',
+                reservas: '✅ <strong>Reservas:</strong><br>📲 WhatsApp o llama al {phone}<br>⏰ Mínimo 2 horas de anticipación',
+                delivery: '🚚 <strong>Delivery:</strong><br>⏱️ 45 min aprox • 💰 Gratis desde $20<br>📞 Pedir al {phone}'
+            },
+            barberia: {
+                saludos: ['¡Hola! 💈 Bienvenido a la barbería', '✂️ ¿Listo para un nuevo look?'],
+                servicios: '💈 <strong>Servicios:</strong><br>✂️ Corte clásico: $15 | 🪒 Afeitada: $10<br>🎨 Tinte: $25 | 💆‍♂️ Masaje facial: $20<br>👑 Barba completa: $18',
+                horarios: '🕐 <strong>Horarios:</strong><br>Lun-Sáb: 9:00 AM - 8:00 PM<br>Dom: Cerrado ✋',
+                contacto: '📞 <strong>Agenda tu cita:</strong><br>📱 <a href="https://wa.me/51{phone}" target="_blank" style="background:#25D366;color:white;padding:4px 8px;border-radius:20px;">WhatsApp {phone}</a><br>📍 Av. Principal 123',
+                reservas: '📅 <strong>Citas:</strong><br>Reserva por WhatsApp {phone}<br>⏰ Cancelaciones con 2h de aviso'
+            },
+            hospital: {
+                saludos: ['¡Hola! 🏥 Bienvenido al hospital', '🩺 Estamos aquí para cuidarte 24/7'],
+                servicios: '🏥 <strong>Servicios:</strong><br>🚨 Emergencias 24h | 👨‍⚕️ Consultas generales<br>🧪 Laboratorios | 📱 Rayos X<br>❤️ Cardiología | 🧠 Neurología',
+                horarios: '🕐 <strong>Atención:</strong><br>🚨 Emergencias: 24/7<br>👨‍⚕️ Consultas: 7AM-9PM',
+                contacto: '📞 <strong>Emergencias:</strong><br>🚨 911 | 🏥 <a href="tel:+51{phone}">{phone}</a><br>📍 Jr. Salud 456',
+                reservas: '📅 <strong>Citas:</strong><br>Portal web o {phone}<br>🕒 Lun-Vie 8AM-6PM'
+            },
+            colegio: {
+                saludos: ['¡Hola! 🏫 Bienvenido al colegio', '📚 Educación de calidad para tus hijos'],
+                servicios: '🏫 <strong>Nivel Educativo:</strong><br>🥰 Inicial (3-5 años)<br>📖 Primaria (1°-6°)<br>🎓 Secundaria (1°-5°)<br>🧑‍🎓 Preuniversitario',
+                horarios: '🕚 <strong>Horarios:</strong><br>📚 Clases: 7:30 AM - 2:30 PM<br>🏢 Oficina: 8AM-5PM',
+                contacto: '📞 <strong>Contacto:</strong><br>📍 Av. Educación 789<br>☎️ <a href="tel:+51{phone}">{phone}</a><br>📧 admisiones@colegio.edu',
+                reservas: '📋 <strong>Inscripciones:</strong><br>✅ Abiertas todo el año<br>📥 Descarga formulario en {website}'
+            },
+            empresa: {
+                saludos: ['¡Hola! 👋 Bienvenido a nuestra empresa', '🏢 Soluciones profesionales para tu negocio'],
+                servicios: '💼 <strong>Servicios Empresariales:</strong><br>📊 Consultoría estratégica<br>💻 Desarrollo Web & Apps<br>📈 Marketing Digital<br>🔒 Ciberseguridad',
+                horarios: '🕐 <strong>Horarios:</strong><br>Lun-Vie: 9AM-7PM<br>Sáb: 9AM-2PM | Dom: Descanso',
+                contacto: '📧 <strong>Contacto:</strong><br>✉️ contacto@empresa.com<br>📱 <a href="https://wa.me/51{phone}">{phone}</a>',
+                reservas: '📅 <strong>Reuniones:</strong><br>🎯 Agenda asesoría gratuita<br>📲 WhatsApp: {phone}'
+            },
+            tienda: {
+                saludos: ['¡Hola! 🛒 Bienvenido a nuestra tienda', '🛍️ Encuentra lo mejor para ti'],
+                servicios: '🛍️ <strong>Categorías:</strong><br>👕 Ropa & Accesorios | 👞 Calzado<br>📱 Tecnología | 🏠 Hogar & Decoración<br>💄 Belleza | 🧴 Cuidado personal',
+                horarios: '🕒 <strong>Horarios:</strong><br>Lun-Dom: 10AM-9PM<br>🛒 Tienda física + Online',
+                contacto: '📞 <strong>Contacto:</strong><br>🛒 Tienda física y online<br>📱 <a href="https://wa.me/51{phone}">{phone}</a>',
+                delivery: '🚚 <strong>Envíos:</strong><br>📦 Nacional • 24-48h<br>💸 Gratis compras +$50'
+            },
+            gimnasio: {
+                saludos: ['¡Hola! 💪 Bienvenido al gimnasio', '🔥 ¡Transforma tu cuerpo hoy!'],
+                servicios: '💪 <strong>Planes:</strong><br>🏋️ Mensual: $35<br>🔥 3 meses: $90<br>👑 Anual: $300<br>🥊 Boxeo • 🧘 Yoga • 🏃 Cardio',
+                horarios: '🕐 <strong>Horarios:</strong><br>Lun-Vie: 5AM-11PM<br>Sáb-Dom: 7AM-9PM',
+                contacto: '📞 <strong>Matrícula:</strong><br>📱 WhatsApp: <a href="https://wa.me/51{phone}">{phone}</a><br>🏋️ Primera semana GRATIS',
+                reservas: '📅 <strong>Clases Grupales:</strong><br>Reserva por app o {phone}'
+            },
+            hotel: {
+                saludos: ['¡Hola! 🏨 Bienvenido al hotel', '🌟 Tu hogar lejos de casa'],
+                servicios: '🏨 <strong>Habitaciones:</strong><br>⭐ Standard | ⭐⭐ Superior<br>⭐⭐⭐ Suite | 🛏️ Family Room<br>🏊 Piscina | 🍽️ Restaurante 24h',
+                horarios: '🕒 <strong>Check-in/out:</strong><br>📥 2:00 PM | 📤 12:00 PM<br>🛎️ Recepción 24/7',
+                contacto: '📞 <strong>Reservas:</strong><br>☎️ <a href="tel:+51{phone}">{phone}</a><br>🌐 <a href="{website}" target="_blank">{website}</a>',
+                reservas: '🛏️ <strong>Mejores tarifas:</strong><br>Directo por {phone} | Descuentos especiales'
+            }
+        };
+
+        // ===================== FUNCIONES PRINCIPALES =====================
+        function toggleConfig() {
+            const panel = document.getElementById('configPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateBusiness() {
+            const type = document.getElementById('businessType').value;
+            document.getElementById('businessName').placeholder = 
+                type === 'restaurante' ? 'Restaurante La Buena Mesa' :
+                type === 'barberia' ? 'Barbería El Estilo' :
+                type === 'hospital' ? 'Clínica Salud Total' :
+                type === 'colegio' ? 'Colegio Futuro Brillante' :
+                type === 'empresa' ? 'Consultoría Pro' :
+                type === 'tienda' ? 'Tienda Fashion' :
+                type === 'gimnasio' ? 'Gym Power' : 'Hotel Paradiso';
+        }
+
+        function saveConfig() {
+            CONFIG.type = document.getElementById('businessType').value;
+            CONFIG.name = document.getElementById('businessName').value || 'Mi Negocio';
+            CONFIG.phone = document.getElementById('phoneNumber').value || '123-456-789';
+            CONFIG.website = document.getElementById('website').value;
+            
+            localStorage.setItem('chatbotConfig', JSON.stringify(CONFIG));
+            updateHeader();
+            toggleConfig();
+            addMessage('✅ Configuración guardada. ¡Ya estoy listo para ayudarte con tu ' + CONFIG.name + '!', false);
+        }
+
+        function updateHeader() {
+            document.getElementById('chatTitle').textContent = `🤖 ${CONFIG.name}`;
+            document.getElementById('chatSubtitle').textContent = `¡Hola! Tu asistente 24/7 😊`;
+        }
+
+        function formatResponse(text) {
+            return text
+                .replace(/{phone}/g, CONFIG.phone)
+                .replace(/{website}/g, CONFIG.website || 'nuestro sitio web');
+        }
+
+        function getBotResponse(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            const responses = RESPUESTAS[CONFIG.type];
+            
+            // Keywords matching
+            if (lowerMsg.includes('hola') || lowerMsg.includes('buen') || lowerMsg.includes('buenos')) {
+                return responses.saludos[Math.floor(Math.random() * responses.saludos.length)];
+            }
+            if (lowerMsg.includes('servicio') || lowerMsg.includes('qué') || lowerMsg.includes('menu')) {
+                return responses.servicios;
+            }
+            if (lowerMsg.includes('hora') || lowerMsg.includes('abrir') || lowerMsg.includes('cerrar')) {
+                return responses.horarios;
+            }
+            if (lowerMsg.includes('contact') || lowerMsg.includes('teléfono') || lowerMsg.includes('whatsapp')) {
+                return responses.contacto;
+            }
+            
+            // Type-specific
+            if (CONFIG.type === 'restaurante' && (lowerMsg.includes('reserva') || lowerMsg.includes('mesa'))) {
+                return responses.reservas;
+            }
+            if ((CONFIG.type === 'restaurante' || CONFIG.type === 'tienda') && lowerMsg.includes('delivery')) {
+                return responses.delivery;
+            }
+            if (CONFIG.type === 'barberia' && lowerMsg.includes('cita')) {
+                return responses.reservas;
+            }
+            if (CONFIG.type === 'gimnasio' && lowerMsg.includes('matrícula')) {
+                return responses.contacto;
+            }
+            
+            // Default
+            return `Entiendo que quieres saber sobre <strong>servicios, horarios o contacto</strong>.<br><br>
+                   📲 Toca los botones rápidos o escribe más específico.<br>
+                   ☎️ WhatsApp: <a href="https://wa.me/51${CONFIG.phone}" target="_blank" style="background:#25D366;color:white;padding:4px 8px;border-radius:20px;">${CONFIG.phone}</a>`;
+        }
+
+        function addMessage(content, isUser = false) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function showTyping() {
+            const messages = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing';
+            typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+            return typingDiv;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messagesEl = document.getElementById('messages');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+
+            const typingIndicator = showTyping();
+
+            setTimeout(() => {
+                messagesEl.removeChild(typingIndicator);
+                const response = getBotResponse(message);
+                addMessage(formatResponse(response));
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('messageInput').focus();
+            }, 1500);
+        }
+
+        function quickReply(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // ===================== INICIALIZACIÓN =====================
+        window.onload = function() {
+            // Load saved config
+            const saved = localStorage.getItem('chatbotConfig');
+            if (saved) {
+                CONFIG = { ...CONFIG, ...JSON.parse(saved) };
+            }
+            
+            // Update form with config
+            document.getElementById('businessType').value = CONFIG.type;
+            document.getElementById('businessName').value = CONFIG.name;
+            document.getElementById('phoneNumber').value = CONFIG.phone;
+            document.getElementById('website').value = CONFIG.website;
+            
+            updateHeader();
+            updateBusiness();
+            
+            // Focus input
+            document.getElementById('messageInput').focus();
+        };
+
+        // Close config on outside click
+        document.addEventListener('click', function(event) {
+            const configBtn = document.querySelector('.config-btn');
+            const configPanel = document.getElementById('configPanel');
+            if (!configBtn.contains(event.target) && !configPanel.contains(event.target)) {
+                configPanel.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
